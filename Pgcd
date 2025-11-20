@@ -1,48 +1,105 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
-int main() {
-    int a, b, reste;
-
-    // Saisie
-    printf("Entrez le  nombre: ");
-    scanf("%d", &a);
-    printf("Entrez le deuxieme nombre: ");
-    scanf("%d", &b);
-
-    // ===== Ajout Bézout =====
-    int a0 = a, b0 = b;   // garder les valeurs originales
-    int x0 = 1, y0 = 0;   // coefficients pour a
-    int x1 = 0, y1 = 1;   // coefficients pour b
-    int q, x, y;
-    // ========================
-
-    // Gestion si b=0 ou a=0
-    // Algorithme d'Euclide
-    while (b != 0) {
-        q = a / b;          // ===== Ajout Bézout =====
-        reste = a % b;
-        a = b;
-        b = reste;
-
-        // ===== Calcul des coefficients de Bézout =====
-        x = x0 - q * x1;
-        y = y0 - q * y1;
-        x0 = x1;
-        y0 = y1;
-        x1 = x;
-        y1 = y;
-        // =============================================
+// Euclide étendu AFFICHANT la méthode de calcul
+int euclide_etendu_detail(int a, int b, int *x, int *y) {
+    if (b == 0) {
+        printf("Étape finale : b = 0 → x = 1, y = 0\n");
+        *x = 1;
+        *y = 0;
+        return a;
     }
 
-    printf("Le PGCD est: %d\n", a);
+    int x1, y1;
 
-    // ===== Affichage des coefficients de Bézout =====
-    printf("Les coefficients de Bézout sont: x = %d, y = %d\n", x0, y0);
-    printf("Verification: %d*(%d) + %d*(%d) = %d\n", a0, x0, b0, y0, a0*x0 + b0*y0);
-    // ================================================
+    int pgcd = euclide_etendu_detail(b, a % b, &x1, &y1);
 
-    if (a == 1)
-        printf("Les deux nombres sont premiers entre eux ");
+    *x = y1;
+    *y = x1 - (a / b) * y1;
+
+    printf("Retour : PGCD(%d, %d)\n", a, b);
+    printf("x = %d, y = %d   car   x = y1 = %d   et   y = x1 - (%d/%d)*y1 = %d - %d*%d = %d\n",
+           *x, *y, y1, a, b, x1, a/b, y1, *y);
+
+    return pgcd;
+}
+
+// Fonction qui teste si un nombre est premier
+int est_premier(int n) {
+    if (n < 2) return 0;
+    for (int i = 2; i <= sqrt(n); i++) {
+        if (n % i == 0) return 0;
+    }
+    return 1;
+}
+
+int main() {
+    int a, b;
+    int x, y;
+
+    printf("Entrer deux entiers : ");
+    scanf("%d %d", &a, &b);
+
+    int A = a, B = b;
+
+    printf("\n===== METHODE D'EUCLIDE (PGCD) =====\n");
+    int aa = a, bb = b, q, r;
+
+    while (bb != 0) {
+        q = aa / bb;
+        r = aa % bb;
+        printf("%d = %d * (%d) + %d\n", aa, bb, q, r);
+        aa = bb;
+        bb = r;
+    }
+
+    int pgcd = aa;
+    printf("\nPGCD(%d, %d) = %d\n", A, B, pgcd);
+
+    printf("\n===== METHODE DE CALCUL DES COEFFICIENTS DE BEZOUT =====\n");
+    pgcd = euclide_etendu_detail(A, B, &x, &y);
+
+    printf("\nCoefficients trouvés : x = %d, y = %d\n", x, y);
+    printf("Vérification : %d*(%d) + %d*(%d) = %d\n",
+           A, x, B, y, A*x + B*y);
+
+    if (pgcd == 1)
+        printf("=> %d et %d sont PREMIERS ENTRE EUX.\n", A, B);
+    else
+        printf("=> %d et %d ne sont PAS premiers entre eux.\n", A, B);
+
+    printf("\n===== METHODE DE CALCUL DU PPCM =====\n");
+    printf("Formule : PPCM = |a×b| / PGCD\n");
+    int ppcm = abs(A * B) / pgcd;
+    printf("PPCM(%d, %d) = %d\n\n", A, B, ppcm);
+
+    // -----------------------------------------
+    // TABLEAU DES NOMBRES PREMIERS
+    // -----------------------------------------
+
+    int min = (A < B) ? A : B;
+    int max = (A > B) ? A : B;
+
+    int primes[1000], count = 0;
+
+    for (int i = min; i <= max; i++) {
+        if (est_premier(i)) {
+            primes[count++] = i;
+        }
+    }
+
+    printf("===== TABLEAU DES NOMBRES PREMIERS =====\n");
+
+    if (count == 0) {
+        printf("Aucun nombre premier dans cet intervalle.\n");
+    } else {
+        printf("Index :  ");
+        for (int i = 0; i < count; i++) printf("%d\t", i);
+        printf("\nValeur : ");
+        for (int i = 0; i < count; i++) printf("%d\t", primes[i]);
+        printf("\n");
+    }
 
     return 0;
 }
