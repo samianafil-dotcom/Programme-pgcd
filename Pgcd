@@ -1,0 +1,48 @@
+#include <stdio.h>
+
+int main() {
+    int a, b, reste;
+
+    // Saisie
+    printf("Entrez le  nombre: ");
+    scanf("%d", &a);
+    printf("Entrez le deuxieme nombre: ");
+    scanf("%d", &b);
+
+    // ===== Ajout Bézout =====
+    int a0 = a, b0 = b;   // garder les valeurs originales
+    int x0 = 1, y0 = 0;   // coefficients pour a
+    int x1 = 0, y1 = 1;   // coefficients pour b
+    int q, x, y;
+    // ========================
+
+    // Gestion si b=0 ou a=0
+    // Algorithme d'Euclide
+    while (b != 0) {
+        q = a / b;          // ===== Ajout Bézout =====
+        reste = a % b;
+        a = b;
+        b = reste;
+
+        // ===== Calcul des coefficients de Bézout =====
+        x = x0 - q * x1;
+        y = y0 - q * y1;
+        x0 = x1;
+        y0 = y1;
+        x1 = x;
+        y1 = y;
+        // =============================================
+    }
+
+    printf("Le PGCD est: %d\n", a);
+
+    // ===== Affichage des coefficients de Bézout =====
+    printf("Les coefficients de Bézout sont: x = %d, y = %d\n", x0, y0);
+    printf("Verification: %d*(%d) + %d*(%d) = %d\n", a0, x0, b0, y0, a0*x0 + b0*y0);
+    // ================================================
+
+    if (a == 1)
+        printf("Les deux nombres sont premiers entre eux ");
+
+    return 0;
+}
